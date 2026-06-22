@@ -53,6 +53,43 @@ For your first milestone, describe what your project is and how you plan to buil
 - Challenges you're facing and solving in your future milestones
 - What your plan is to complete your project
 
+# Starter Milestone
+
+**Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CaCazFBhYKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+For my starter project at BlueStamp Engineering, I built a handheld retro arcade game console to learn the fundamentals of electronics, embedded systems, soldering, and hardware-software integration before beginning my main robotics project.
+
+The console is powered by a central microcontroller that controls all inputs and outputs across the system. It includes a 16×8 LED dot matrix display for rendering retro pixel graphics, a 3-digit 7-segment display for displaying game scores, a 5V buzzer for generating arcade-style sound effects, and a custom soldered keypad that allows users to interact with multiple pre-programmed games.
+
+Components and Integration
+
+Each hardware component performs a specific role and communicates through the microcontroller:
+
+LED Matrix Display: Draws game graphics and updates frames in real time.
+7-Segment Display: Tracks and displays score values.
+Button Inputs: Detect player movement and actions.
+Buzzer: Produces audio feedback and game sounds.
+Microcontroller: Processes user inputs and coordinates output behavior across the system.
+Technical Progress
+
+During this milestone:
+
+Learned safe soldering techniques and assembled electronic components
+Connected and tested display modules and button inputs
+Programmed and uploaded firmware to the microcontroller
+Debugged wiring and signal issues
+Successfully ran playable retro-style games on the completed console
+Challenges
+
+One of the biggest challenges was soldering clean and reliable connections while making sure every component communicated correctly. Small wiring mistakes or poor solder joints could cause display glitches or unresponsive controls, so debugging required patience and systematic testing.
+
+Plan Moving Forward
+
+Completing this starter project gave me hands-on experience with electronics, real-time control systems, and hardware debugging. These skills prepared me to transition into my main project: a gesture and computer vision-controlled robotic arm that expands from simple embedded control into AI-guided robotics and automation.
+
+
 # Schematics 
 Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resoruces to create professional schematic diagrams, though BSE recommends Tinkercad becuase it can be done easily and for free in the browser. 
 
