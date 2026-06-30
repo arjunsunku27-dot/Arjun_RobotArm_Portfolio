@@ -38,20 +38,29 @@ For your second milestone, explain what you've worked on since your previous mil
 - What needs to be completed before your final milestone
 -->
 
-<!--- ============================================================ -->
-<!--- FIRST MILESTONE — comment out until complete -->
-<!--- ============================================================ -->
-<!---
 # First Milestone
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/CaCazFBhYKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/hxumSRNxsR0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-For your first milestone, describe what your project is and how you plan to build it. You can include:
-- An explanation about the different components of your project and how they will all integrate together
-- Technical progress you've made so far
-- Challenges you're facing and solving in your future milestones
-- What your plan is to complete your project
--->
+For my first milestone, I got the robotic arm fully working with manual joystick control through the Arduino. The Arduino has a sensor shield stacked on top of it, which the two joystick modules wire into. From there the shield connects to all four servos on the arm. Pushing a joystick forward or backward extends or retracts the arm, the other joystick opens and closes the claw, raises and lowers the elbow, and rotates the base. Together this lets the arm pick up an object and place it down somewhere else.
+
+I chose this project because I wanted to compare gesture control against computer vision in terms of accuracy and latency once both are built — joystick control is the foundation that the other two control modes build on top of.
+
+**Technical Progress**
+
+- Wired the Arduino sensor shield to two analog joystick modules and all four arm servos
+- Mapped each joystick axis to a specific joint: base rotation, elbow up/down, arm extend/retract, and claw open/close
+- Got the full arm responding smoothly to joystick input, allowing basic pick-and-place movement
+
+**Challenges**
+
+My biggest challenge was burning out servos. I originally assumed it was a wiring problem and rewired everything, but the servos kept frying anyway. After digging into the code, I found the real issue: the angle ranges in my code let the arm push past its physical limits, so the servo kept trying to spin past where the arm could actually move. It had nowhere to go, so it stalled and overheated until it burned out.
+
+Replacing servos also took a toll on the arm's structural integrity — every time I disassembled and reassembled a joint, the acrylic frame got a little weaker. Eventually one of the parts snapped completely. I had two choices: glue it back together (which would be structurally weak) or 3D print a replacement part. I chose to learn 3D modeling and printed a new part, which restored the arm to full strength.
+
+**What's Next**
+
+Now that joystick control is solid, my next step is building out the other two control modes. For computer vision, the arm will use a camera to detect a colored object (starting with red), locate its center point, and calculate the sequence of movements needed to reach it — rotating the base first, then extending forward or backward, then opening or closing the claw. For gesture control, a camera connected to a Raspberry Pi will read my hand position and mirror it onto the arm: an open hand opens the claw, a closed fist closes it, and pointing in a direction rotates the base or extends the arm that way.
 
 # Starter Milestone
 
@@ -99,59 +108,26 @@ Here's where you'll put images of your schematics.
 
 # Code
 
-The project uses two separate programs that work together: an Arduino sketch that controls the servos and listens for commands, and a Python script running on the Raspberry Pi that handles computer vision and gesture recognition.
+The project runs on two boards working together. The Arduino directly drives all four servos and reads the two joysticks on its own, but it also listens over USB serial for commands from the Raspberry Pi. The Pi runs a menu script that lets you choose between joystick, gesture, or computer vision control without re-uploading any code.
 
-**Arduino — Servo Listener (receives commands from Raspberry Pi)**
+**Arduino — Combined Joystick + Serial Listener**
 
-The Arduino listens over USB serial for single-character commands from the Pi. Each command is a joint letter (B=Base, S=Shoulder, U=Upper arm, C=Claw) followed by an angle number.
-
-```cpp
-#include <Servo.h>
-
-Servo s1, s2, s3, s4;   // Base, Shoulder, Upper arm, Claw
-
-void setup() {
-  s1.attach(3);   // Base servo       on D3
-  s2.attach(5);   // Shoulder servo   on D5
-  s3.attach(6);   // Upper arm servo  on D6
-  s4.attach(9);   // Claw servo       on D9
-
-  s1.write(90); s2.write(90); s3.write(90); s4.write(10);
-  Serial.begin(9600);
-}
-
-void loop() {
-  if (Serial.available() > 0) {
-    char joint = Serial.read();
-    int val = Serial.parseInt();
-    if (joint == 'B') s1.write(constrain(val, 0, 180));
-    if (joint == 'S') s2.write(constrain(val, 10, 180));
-    if (joint == 'U') s3.write(constrain(val, 5, 180));
-    if (joint == 'C') s4.write(constrain(val, 10, 175));
-  }
-}
-```
-
-**Arduino — Joystick Control (standalone mode without Pi)**
+This sketch handles joystick input directly so the arm always responds to the joysticks, but if a command comes in from the Pi over USB, it executes that instead for that cycle. The claw uses a continuous rotation servo (FS90MR), so instead of moving to an angle it spins for a short burst and then stops — holding the stick spins it continuously, releasing it stops it instantly.
 
 ```cpp
 #include <Servo.h>
 
 Servo myservo1;  // Base
-Servo myservo2;  // Lower arm (Shoulder)
-Servo myservo3;  // Upper arm
-Servo myservo4;  // Claw
+Servo myservo2;  // Shoulder (lower arm)
+Servo myservo3;  // Elbow (upper arm)
+Servo myservo4;  // Claw — continuous rotation (FS90MR)
 
-int pos1=90, pos2=90, pos3=90, pos4=90;
+int pos1=90, pos2=90, pos3=90;  // tracked angles for the 3 positional servos
 
-const int right_X = A2;
-const int right_Y = A5;
-const int right_key = 7;
-const int left_X  = A3;
-const int left_Y  = A4;
-const int left_key = 8;
-
-int x1, y1, z1, x2, y2, z2;
+const int right_X = A2;  // right stick left/right -> base
+const int right_Y = A5;  // right stick up/down    -> shoulder
+const int left_X  = A3;  // left stick left/right  -> claw
+const int left_Y  = A4;  // left stick up/down     -> elbow
 
 void setup() {
   myservo1.attach(3);
@@ -159,55 +135,64 @@ void setup() {
   myservo3.attach(6);
   myservo4.attach(9);
 
-  myservo1.write(pos1);
-  myservo2.write(pos2);
-  myservo3.write(pos3);
-  myservo4.write(pos4);
-  delay(1500);
+  myservo1.write(90);
+  myservo2.write(90);
+  myservo3.write(90);
+  myservo4.write(90);  // 90 = stopped for the continuous rotation servo
 
-  pinMode(right_key, INPUT);
-  pinMode(left_key, INPUT);
-  Serial.begin(9600);
+  Serial.begin(9600);  // open serial so the Pi can send commands
 }
 
 void loop() {
-  x2 = analogRead(right_X);
-  y2 = analogRead(right_Y);
-  x1 = analogRead(left_X);
-  y1 = analogRead(left_Y);
+  // If the Pi sent a command, execute it and skip joystick reading this cycle
+  if (Serial.available() > 0) {
+    char joint = Serial.read();
+    int val = Serial.parseInt();
 
-  claw();
-  turn();
-  upper_arm();
-  lower_arm();
-  delay(10);
-}
+    if (joint == 'B') { pos1 = constrain(val, 30, 150); myservo1.write(pos1); }
+    if (joint == 'S') { pos2 = constrain(val, 20, 140); myservo2.write(pos2); }
+    if (joint == 'U') { pos3 = constrain(val, 20, 140); myservo3.write(pos3); }
+    if (joint == 'C') {
+      if (val < 50)        { myservo4.write(80); delay(250); myservo4.write(90); }  // close
+      else if (val > 100)  { myservo4.write(100); delay(250); myservo4.write(90); } // open
+    }
+    return;
+  }
 
-void claw() {
-  if (x1 < 200) { pos4 += 6; if (pos4 > 175) pos4 = 175; myservo4.write(pos4); delay(5); }
-  if (x1 > 800) { pos4 -= 6; if (pos4 < 10)  pos4 = 10;  myservo4.write(pos4); delay(5); }
-}
+  // Otherwise read the joysticks
+  int x2 = analogRead(right_X);
+  int y2 = analogRead(right_Y);
+  int x1 = analogRead(left_X);
+  int y1 = analogRead(left_Y);
 
-void turn() {
-  if (x2 < 200) { pos1 += 4; if (pos1 > 180) pos1 = 180; myservo1.write(pos1); delay(5); }
-  if (x2 > 800) { pos1 -= 4; if (pos1 < 0)   pos1 = 0;   myservo1.write(pos1); delay(5); }
-}
+  // CLAW — spins only while the stick is held, stops instantly on release
+  if (x1 < 200)       { myservo4.write(80); }   // hold left  = close
+  else if (x1 > 800)  { myservo4.write(100); }  // hold right = open
+  else                { myservo4.write(90); }    // released   = stop
 
-void lower_arm() {
-  if (y2 < 350) { pos2 += 4; if (pos2 > 180) pos2 = 180; myservo2.write(pos2); delay(5); }
-  if (y2 > 680) { pos2 -= 4; if (pos2 < 10)  pos2 = 10;  myservo2.write(pos2); delay(5); }
-}
+  // BASE — range capped at 30-150 to protect the servo from its physical limits
+  if (x2 < 200)      { pos1 += 2; if (pos1 > 150) pos1 = 150; myservo1.write(pos1); delay(8); }
+  else if (x2 > 800) { pos1 -= 2; if (pos1 < 30)  pos1 = 30;  myservo1.write(pos1); delay(8); }
 
-void upper_arm() {
-  if (y1 > 800) { pos3 += 4; if (pos3 > 180) pos3 = 180; myservo3.write(pos3); delay(5); }
-  if (y1 < 200) { pos3 -= 4; if (pos3 < 5)   pos3 = 5;   myservo3.write(pos3); delay(5); }
+  // SHOULDER — range capped at 20-140
+  if (y2 < 350)      { pos2 += 2; if (pos2 > 140) pos2 = 140; myservo2.write(pos2); delay(8); }
+  else if (y2 > 680) { pos2 -= 2; if (pos2 < 20)  pos2 = 20;  myservo2.write(pos2); delay(8); }
+
+  // ELBOW — range capped at 20-140
+  if (y1 > 800)      { pos3 += 2; if (pos3 > 140) pos3 = 140; myservo3.write(pos3); delay(8); }
+  else if (y1 < 200) { pos3 -= 2; if (pos3 < 20)  pos3 = 20;  myservo3.write(pos3); delay(8); }
+
+  delay(15);
 }
 ```
 
-**Raspberry Pi — Gesture Control (Python)**
+**Raspberry Pi — Master Control Menu (Python)**
+
+This script lets you pick a control mode at runtime: joystick (handled entirely by the Arduino), gesture (MediaPipe hand tracking), or computer vision (red object tracking). Press Ctrl+C at any time to return to the menu and switch modes.
 
 ```python
 import cv2, time, serial
+import numpy as np
 import mediapipe as mp
 from picamera2 import Picamera2
 
@@ -215,114 +200,125 @@ arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)
 
 def send(joint, angle):
-    cmd = f"{joint}{int(angle)}\n"
-    arduino.write(cmd.encode())
-    time.sleep(0.05)
+    arduino.write(f"{joint}{int(angle)}\n".encode())
+    time.sleep(0.1)
 
-base_angle = 90
-send('B', 90); send('S', 90); send('U', 90); send('C', 10)
-time.sleep(1)
+def start_camera():
+    cam = Picamera2()
+    cam.configure(cam.create_preview_configuration(main={"size": (640, 480)}))
+    cam.start()
+    time.sleep(2)
+    return cam
 
-hands = mp.solutions.hands.Hands(max_num_hands=1, min_detection_confidence=0.75)
+# ---------------- GESTURE MODE ----------------
+def gesture_mode():
+    hands = mp.solutions.hands.Hands(max_num_hands=1, min_detection_confidence=0.75)
+    cam = start_camera()
+    base = 90
+    send('B',90); send('S',90); send('U',90)
+    time.sleep(0.5)
 
-def count_fingers(lm):
-    count = 0
-    for tip in [8, 12, 16, 20]:
-        if lm.landmark[tip].y < lm.landmark[tip-2].y:
-            count += 1
-    if lm.landmark[4].x < lm.landmark[3].x:
-        count += 1
-    return count
+    def count_fingers(lm):
+        c = 0
+        for tip in [8,12,16,20]:
+            if lm.landmark[tip].y < lm.landmark[tip-2].y: c += 1
+        if lm.landmark[4].x < lm.landmark[3].x: c += 1
+        return c
 
-picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480)}))
-picam2.start()
-time.sleep(2)
+    buf, last = [], ""
+    print("GESTURE MODE — Ctrl+C to return to menu")
+    try:
+        while True:
+            frame = cam.capture_array()
+            rgb = cv2.cvtColor(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR), cv2.COLOR_BGR2RGB)
+            res = hands.process(rgb)
+            if res.multi_hand_landmarks:
+                h = res.multi_hand_landmarks[0]
+                f = count_fingers(h)
+                if   f>=4: g="OPEN"
+                elif f==0: g="CLOSE"
+                elif f==1:
+                    cx=h.landmark[8].x
+                    g="LEFT" if cx<0.4 else "RIGHT" if cx>0.6 else "NONE"
+                elif f==2:
+                    g="UP" if h.landmark[0].y<0.5 else "DOWN"
+                else: g="NONE"
+                buf.append(g); buf=buf[-3:]
+                if len(buf)==3 and all(x==buf[0] for x in buf) and g!="NONE" and g!=last:
+                    last=g
+                    if g=="OPEN":    send('C',140)
+                    elif g=="CLOSE": send('C',10)
+                    elif g=="LEFT":  base=min(150,base+8); send('B',base)
+                    elif g=="RIGHT": base=max(30,base-8);  send('B',base)
+                    elif g=="UP":    send('S',130); send('U',130)
+                    elif g=="DOWN":  send('S',50);  send('U',50)
+            else:
+                buf, last = [], ""
+            time.sleep(0.2)
+    except KeyboardInterrupt:
+        cam.stop()
+        print("\nReturning to menu...")
 
-gesture_buffer = []
-BUFFER_SIZE = 3
-last_action = ""
+# ---------------- VISION MODE ----------------
+def vision_mode():
+    cam = start_camera()
+    base = 90
+    send('B',90); send('S',90); send('U',90)
+    print("VISION MODE — tracking red object. Ctrl+C to return to menu")
+    try:
+        while True:
+            frame = cam.capture_array()
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            mask = (cv2.inRange(hsv, np.array([0,150,70]),   np.array([10,255,255])) +
+                    cv2.inRange(hsv, np.array([170,150,70]), np.array([180,255,255])))
+            cnts,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            for c in cnts:
+                if cv2.contourArea(c) > 5000:
+                    x,y,w,h = cv2.boundingRect(c)
+                    ox = x + w//2
+                    target = max(30, min(150, 150 - int((ox/640)*120)))
+                    if abs(target-base) > 5:
+                        base = target
+                        send('B', base)
+                        print(f"Red at x={ox}, base -> {base}")
+                    break
+            time.sleep(0.2)
+    except KeyboardInterrupt:
+        cam.stop()
+        print("\nReturning to menu...")
 
-try:
-    while True:
-        frame = picam2.capture_array()
-        rgb = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
-        res = hands.process(rgb)
+# ---------------- JOYSTICK MODE ----------------
+def joystick_mode():
+    print("JOYSTICK MODE — the Arduino handles the joysticks directly.")
+    print("Just move the joysticks. Ctrl+C to return to menu.")
+    try:
+        while True:
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print("\nReturning to menu...")
 
-        if res.multi_hand_landmarks:
-            h = res.multi_hand_landmarks[0]
-            f = count_fingers(h)
-
-            if   f >= 4:       gesture = "OPEN"
-            elif f == 0:       gesture = "CLOSE"
-            elif f == 1:
-                cx = h.landmark[8].x
-                if   cx < 0.4: gesture = "LEFT"
-                elif cx > 0.6: gesture = "RIGHT"
-                else:          gesture = "NONE"
-            elif f == 2:
-                wy = h.landmark[0].y
-                gesture = "UP" if wy < 0.5 else "DOWN"
-            else:              gesture = "NONE"
-
-            gesture_buffer.append(gesture)
-            if len(gesture_buffer) > BUFFER_SIZE:
-                gesture_buffer.pop(0)
-
-            if (len(gesture_buffer) == BUFFER_SIZE and
-                all(g == gesture_buffer[0] for g in gesture_buffer) and
-                gesture != "NONE" and gesture != last_action):
-
-                last_action = gesture
-                if   gesture == "OPEN":  send('C', 10);  print("OPEN gripper")
-                elif gesture == "CLOSE": send('C', 175); print("CLOSE gripper")
-                elif gesture == "LEFT":
-                    base_angle = min(180, base_angle + 10)
-                    send('B', base_angle)
-                elif gesture == "RIGHT":
-                    base_angle = max(0, base_angle - 10)
-                    send('B', base_angle)
-                elif gesture == "UP":   send('S', 150); send('U', 150)
-                elif gesture == "DOWN": send('S', 50);  send('U', 50)
-        else:
-            gesture_buffer = []
-            last_action = ""
-
-        time.sleep(0.15)
-
-except KeyboardInterrupt:
-    arduino.close()
-    picam2.stop()
-```
-
-**Raspberry Pi — Red Object Detection (Python)**
-
-```python
-import cv2
-import numpy as np
-from picamera2 import Picamera2
-import time
-
-picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"size": (640, 480)}))
-picam2.start()
-time.sleep(2)
-
+# ---------------- MENU ----------------
 while True:
-    frame = picam2.capture_array()
-    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-    hsv   = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    print("\n========= ROBOTIC ARM CONTROL =========")
+    print("1 - Joystick control")
+    print("2 - Gesture control")
+    print("3 - Computer vision (red object tracking)")
+    print("4 - Quit")
+    choice = input("Pick a mode (1-4): ").strip()
 
-    mask = (cv2.inRange(hsv, np.array([0,  150, 70]), np.array([10,  255, 255])) +
-            cv2.inRange(hsv, np.array([170,150, 70]), np.array([180, 255, 255])))
-
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    for c in contours:
-        if cv2.contourArea(c) > 5000:
-            x, y, w, h = cv2.boundingRect(c)
-            print(f"RED at x={x + w//2}, y={y + h//2}")
-    time.sleep(0.4)
+    if choice == "1":
+        joystick_mode()
+    elif choice == "2":
+        gesture_mode()
+    elif choice == "3":
+        vision_mode()
+    elif choice == "4":
+        arduino.close()
+        print("Goodbye!")
+        break
+    else:
+        print("Invalid choice, try again.")
 ```
 
 
@@ -336,8 +332,9 @@ while True:
 | LAFVIN Uno R3 (Arduino clone) | Controls servos, receives commands from Pi | Included in kit | <a href="https://www.amazon.com/dp/B07ZYZVNY4">Link</a> |
 | Sensor Shield v5.0 | Breaks Arduino pins into G/V/S headers for easy wiring | Included in kit | <a href="https://www.amazon.com/dp/B07ZYZVNY4">Link</a> |
 | 2x Analog Joystick Modules | Manual control of arm joints | Included in kit | <a href="https://www.amazon.com/dp/B07ZYZVNY4">Link</a> |
+| FS90MR Continuous Rotation Servo | Replacement claw servo after original burned out | $7 | <a href="https://www.amazon.com/dp/B07VK39N96">Link</a> |
 | CanaKit 5.1V 3.1A USB-C Supply | Powers the Raspberry Pi | $10 | <a href="https://www.amazon.com/dp/B07TYQRXTK">Link</a> |
-| 4xAA Battery Pack (6V) | Powers the MG996R servo motors externally | $5 | <a href="https://www.amazon.com/dp/B07TYQRXTK">Link</a> |
+| 4xAA Battery Pack (6V) | Powers the arm servos externally | $5 | <a href="https://www.amazon.com/dp/B07TYQRXTK">Link</a> |
 | Half-size Breadboard | Routes power and signal wires | $5 | <a href="https://www.amazon.com/dp/B082KBF7MM">Link</a> |
 | Male-to-Female Jumper Wires | Connect Pi GPIO pins to breadboard | $5 | <a href="https://www.amazon.com/dp/B077X99KX1">Link</a> |
 
