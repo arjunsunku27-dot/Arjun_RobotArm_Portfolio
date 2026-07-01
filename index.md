@@ -6,7 +6,7 @@ This project is a 4-degree-of-freedom robotic arm controlled by three different 
 |:--:|:--:|:--:|:--:|
 | Arjun V | Basis Independent Fremont (Upper) | Electrical Engineering | Incoming Junior |
 
-![Arjun holding the starter project](ArjunV.heic)
+![Arjun holding the starter project](<img width="410" height="473" alt="Screenshot 2026-07-01 at 8 49 56 AM" src="https://github.com/user-attachments/assets/eeaffb95-46c7-41d0-958e-2da630dff9ae" />)
 
 <!--- ============================================================ -->
 <!--- FINAL MILESTONE — comment out until complete -->
