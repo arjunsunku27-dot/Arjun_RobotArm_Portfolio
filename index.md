@@ -7,6 +7,7 @@ This project is a 4-degree-of-freedom robotic arm controlled by three different 
 | Arjun V | Basis Independent Fremont (Upper) | Electrical Engineering | Incoming Junior |
 
 <img src="https://github.com/user-attachments/assets/6ed48da2-7abb-4af1-9afc-e8447abc4d1e" alt="Arjun headshot" style="width:250px; height:auto;">
+
 <!--- ============================================================ -->
 <!--- FINAL MILESTONE — comment out until complete -->
 <!--- ============================================================ -->
@@ -338,6 +339,7 @@ while True:
 | Male-to-Female Jumper Wires | Connect Pi GPIO pins to breadboard | $5 | <a href="https://www.amazon.com/dp/B077X99KX1">Link</a> |
 
 
+<!---
 # Other Resources
 
 - [MediaPipe Hand Tracking Documentation](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker)
@@ -346,3 +348,4 @@ while True:
 - [BSE Example Portfolio 1](https://trashytuber.github.io/YimingJiaBlueStamp/)
 - [BSE Example Portfolio 2](https://sviatil0.github.io/Sviatoslav_BSE/)
 - [BSE Example Portfolio 3](https://arneshkumar.github.io/arneshbluestamp/)
+-->
