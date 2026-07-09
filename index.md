@@ -1,6 +1,6 @@
 # Gesture and Computer Vision-controlled Robotic Arm
 
-This project is a 4-degree-of-freedom robotic arm controlled by three different input modes: computer vision (the arm autonomously detects and tracks a colored object using a camera), hand gesture recognition (a Raspberry Pi camera reads your hand gestures using MediaPipe AI and moves the arm accordingly), and manual joystick control. The biggest challenge was integrating a Raspberry Pi running AI vision software with an Arduino based servo controller, two completely different systems that had to be made to talk to each other over USB serial. The biggest triumph was getting MediaPipe gesture recognition working on the Pi and having it send real time commands that physically moved the robotic arm.
+This project is a robotic arm with 4 degrees of freedom. It can be controlled by three different input modes: computer vision (the arm detects and tracks a colored object using a camera), gesture control (a Raspberry Pi camera reads hand gestures using MediaPipe AI and moves the arm), and joystick control. The biggest challenge was integrating the Raspberry Pi with computer vision and gesture control with an Arduino servo controller. The two different systems had to be able to talk to each other over a USB serial port, which kept disconnecting. My biggest success was the MediaPipe gesture control working on the Pi, and it being able to send commands to the Arduino that physically moved the robotic arm.
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
@@ -12,31 +12,30 @@ This project is a 4-degree-of-freedom robotic arm controlled by three different 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/b-72fta5Uw0" title="Arjun V. Milestone 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-For my final milestone, I finished computer vision and refined the arm's tracking so it reliably follows a colored object using the camera. The Pi runs a color detection script that finds the largest matching colored blob in the camera feed and remembers its last known position. When the object moves out of frame, the arm rotates toward the side it last saw the object on, which turned out to be far more reliable than trying to track continuous position in real time.
+For the final milestone, I finished computer vision and made the arm's tracking more reliable so it properly follows a colored object using the camera. The Pi runs a color detection script that finds the largest colored blob in the camera's view and remembers its last known position. The arm rotates in the object's direction when it moves out of frame by going to the side it last saw the object visible. This ended up being more reliable than trying to track the position continuously.
 
-I originally tried OpenCV's built in CSRT object tracker instead of simple color detection, since CSRT tracks visual features rather than just color and I thought it would be more robust. In practice, plain color tracking with proper noise filtering worked better for this specific setup and was easier to debug and tune, so I switched back to it.
+Initially, I tried to use OpenCV's CSRT object tracker instead of the HSV color detection, since CSRT tracks visual features instead of just color. I thought it would be more accurate. But the plain color tracking with better background color filtering worked better for this specific setup and was easier for me to debug, so I switched back to it
 
 **What I Accomplished Since My Last Milestone**
 
-- Finished computer vision mode using HSV color detection to track a felt colored target
-- Fixed a direction bug where the arm was turning the wrong way relative to where the object actually left the frame
-- Added logic so the arm remembers the last visible position of the object and turns toward that side, rather than guessing
-- Ran a full demo practice sequence combining joystick, gesture, and vision modes back to back
+- Finished computer vision by using HSV color detection to track a blue object
+- Fixed a bug where the arm kept turning in the wrong direction despite how the object was actually moved
+- Added a part to the code where the arm remembers the last known position of the object and turns to that side instead of guessing
 
 **Biggest Challenges and Triumphs**
 
-The hardest part of this whole project was the debugging cycle itself, not any single piece of hardware. Camera driver bugs, USB ports shifting between /dev/ttyACM0 and /dev/ttyACM1, an Arduino that occasionally stopped responding to serial commands, and color detection that got confused by my own shirt all forced me to slow down and isolate exactly one variable at a time instead of guessing. The triumph was realizing that the simplest solution, plain color detection with a stable, matte colored object like felt instead of a shiny sponge, ended up working better than more complex approaches like object tracking algorithms.
+The biggest challenge I faced in this project was continuous debugging. There were multiple issues in the Camera module, USB ports that kept shifting randomly, the Arduino that sometimes just stopped responding to commands from the Pi, and color detection that would not actually detect or follow the object. All these issues forced me to focus on one problem at a time and forced me to work backwards multiple times. The biggest triumph was getting the computer vision and gesture control to work because I struggled with them for a while, and when one of the simple solutions, like changing the HSV values of the object to bolster detection, instead of trying a more complex tracking method.
 
 **Key Topics I Learned About**
 
-- HSV color space and why it is more reliable than RGB for detecting colored objects under changing light
-- Serial communication between a Raspberry Pi and an Arduino, and why ports can shift after a device disconnects and reconnects
-- The limits of a single camera for depth perception, and why real distance measurement needs either a second camera or a dedicated sensor
+- How HSV color detection works and why it is more reliable than RGB or CSRT tracking
+- How communication between Raspberry Pi and Arduino works, and how to debug port shifts
+- The fact that the Pi camera cannot sense depth, and how distance measurement needs another camera or an ultrasonic sensor
 - How small code changes, like where a servo attach command sits in a loop, can cause a robot arm to behave completely differently
 
 **What I Hope to Learn Next**
 
-After this project, I want to explore proper inverse kinematics so the arm can calculate exact joint angles to reach a specific point in space, instead of relying on pre-tuned angle presets. I would also like to try adding real depth sensing, either with a second camera or an ultrasonic sensor, so the arm can judge distance to an object instead of estimating it from how big the object looks in frame.
+I want to learn more about inverse kinematics in physics so I can make the arm calculate the exact joint angles to reach a specific point, instead of trying to calibrate myself or using preset angles. I also want to try adding actual depth sensing, so the arm can see the distance to an object and pick it up with computer vision instead of estimating or just following it.
 
 # Second Milestone
 
