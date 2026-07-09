@@ -10,7 +10,7 @@ This project is a 4-degree-of-freedom robotic arm controlled by three different 
 
 # Final Milestone
 
-<iframe width="1192" height="670" src="https://www.youtube.com/embed/b-72fta5Uw0" title="Arjun V. Milestone 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/b-72fta5Uw0" title="Arjun V. Milestone 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 For my final milestone, I finished computer vision and refined the arm's tracking so it reliably follows a colored object using the camera. The Pi runs a color detection script that finds the largest matching colored blob in the camera feed and remembers its last known position. When the object moves out of frame, the arm rotates toward the side it last saw the object on, which turned out to be far more reliable than trying to track continuous position in real time.
 
@@ -40,7 +40,7 @@ After this project, I want to explore proper inverse kinematics so the arm can c
 
 # Second Milestone
 
-<iframe width="1192" height="670" src="https://www.youtube.com/embed/9Rbzf-KVjp8" title="Arjun V. Milestone 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/9Rbzf-KVjp8" title="Arjun V. Milestone 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 For my second milestone, I got gesture control working on the arm. A Raspberry Pi camera reads my hand using MediaPipe, a hand tracking library from Google, and recognizes specific gestures. The Pi sends a command over USB serial to the Arduino, which moves the correct servo. An open hand opens the claw, a closed fist closes it, and pointing or holding up two fingers rotates the base or raises and lowers the arm.
 
