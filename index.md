@@ -105,7 +105,6 @@ The console is powered by a central microcontroller that controls all inputs and
 
 - Learned safe soldering techniques and assembled electronic components
 - Connected and tested display modules and button inputs
-- Programmed and uploaded firmware to the microcontroller
 - Debugged wiring and signal issues
 - Successfully ran playable retro-style games on the completed console
 
