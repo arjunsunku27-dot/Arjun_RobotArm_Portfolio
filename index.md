@@ -118,10 +118,19 @@ Completing this starter project gave me hands-on experience with electronics, re
 
 # Schematics
 
-Here's where you'll put images of your schematics.
+# Schematics
 
-<!--- Add your Tinkercad or Fritzing schematic images here once complete -->
-<!--- ![Wiring Schematic](schematic.png) -->
+<img width="1200" height="1600" alt="physical_wiring" src="https://github.com/user-attachments/assets/c575b008-5540-4a1a-8773-f31d6cb852dd" />
+
+*Wiring diagram showing servo, joystick, and sensor shield connections.*
+
+<img width="1200" height="1600" alt="3d_printed_part" src="https://github.com/user-attachments/assets/6c5b197f-f25c-46e0-be54-5366d46f0769" />
+
+*3D modeled and printed replacement part for the arm's structural joint after the original acrylic piece cracked.*
+
+<img width="1200" height="1600" alt="wiring_schematic" src="https://github.com/user-attachments/assets/a6abd439-3e74-441a-8c8f-2b86ceeb81fc" />
+
+*Actual wiring on the sensor shield connecting servos and joystick modules.*
 
 # Code
 
