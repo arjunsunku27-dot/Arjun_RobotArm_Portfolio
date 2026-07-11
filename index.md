@@ -117,7 +117,7 @@ Completing this starter project gave me hands-on experience with electronics, re
 
 # Schematics
 
-<img width="600" alt="Screenshot 2026-07-11 at 11 01 45 AM" src="https://github.com/user-attachments/assets/b6fb3cf6-565f-4ac5-be4b-ae7b1e5bd006" />
+<img width="700" alt="Screenshot 2026-07-11 at 11 01 45 AM" src="https://github.com/user-attachments/assets/b6fb3cf6-565f-4ac5-be4b-ae7b1e5bd006" />
 
 *Complete wiring schematic showing the Arduino, breadboard, servos, joysticks, Raspberry Pi, and power supplies for the robotic arm.*
 
